@@ -15,6 +15,17 @@ android {
         versionName = "0.1.0"
     }
 
+    // Her derlemede aynı imza kullanılsın ki yeni APK eskisinin üstüne kurulabilsin.
+    // Bu yalnızca test (debug) anahtarıdır. Play Store sürümü için ayrı, gizli bir anahtar kullanılacak.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
