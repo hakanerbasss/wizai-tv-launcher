@@ -80,6 +80,9 @@ fun HomeScreen() {
     LaunchedEffect(ResumeSignal.tick.value) {
         apps = withContext(Dispatchers.Default) { loadApps(context) }
     }
+    LaunchedEffect(ResumeSignal.tick.value) {
+        withContext(Dispatchers.IO) { state.refreshWatchNext(context) }
+    }
     WeatherLoader(state)
 
     // Geri tuşu: alt ekranlardan ana ekrana döner, ana ekranda hiçbir şey yapmaz
@@ -216,6 +219,26 @@ private fun HomeContent(
                 state = state,
                 onClick = onWeather
             )
+        }
+
+        if (state.watchNext.isNotEmpty()) {
+            Text(
+                text = "İzlemeye devam et",
+                color = TextMuted,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(state.watchNext, key = { it.id }) { item ->
+                    WatchNextCard(
+                        item = item,
+                        onClick = { item.intent?.let { safeStart(context, it) } }
+                    )
+                }
+            }
         }
 
         Row(
@@ -438,6 +461,52 @@ internal fun AppIcon(
         }
         Text(
             text = (if (favorite) "★ " else "") + app.label,
+            color = TextMain,
+            fontSize = 13.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 6.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+    }
+}
+
+/** Watch Next kaydı: afiş varsa afiş, yoksa yalnızca başlık. */
+@Composable
+private fun WatchNextCard(item: WatchNextItem, onClick: () -> Unit) {
+    val context = LocalContext.current
+    val poster by produceState<ImageBitmap?>(initialValue = null, item.posterUri) {
+        value = item.posterUri?.let { uri ->
+            withContext(Dispatchers.IO) { loadWatchNextPoster(context, uri) }
+        }
+    }
+    FocusTile(
+        modifier = Modifier.width(150.dp),
+        onClick = onClick,
+        padding = 0
+    ) {
+        if (poster != null) {
+            Image(
+                bitmap = poster!!,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("▶", color = LocalLook.current.accent, fontSize = 28.sp)
+            }
+        }
+        Text(
+            text = item.title,
             color = TextMain,
             fontSize = 13.sp,
             maxLines = 1,

@@ -57,6 +57,14 @@ class AppState(context: Context) {
     var weather by mutableStateOf<Weather?>(null)
     var weatherFailed by mutableStateOf(false)
 
+    // İzlemeye devam et (Watch Next): erişim yoksa boş kalır, satır gösterilmez
+    var watchNext by mutableStateOf<List<WatchNextItem>>(emptyList())
+        private set
+
+    fun refreshWatchNext(context: Context) {
+        watchNext = queryWatchNext(context)
+    }
+
     fun setSlot(index: Int, packageName: String) {
         slots[index] = packageName
         prefs.putString("slot_$index", packageName)
