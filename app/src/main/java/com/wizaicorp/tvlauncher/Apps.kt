@@ -2,6 +2,8 @@ package com.wizaicorp.tvlauncher
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
@@ -54,6 +56,18 @@ fun loadBanner(context: Context, packageName: String): ImageBitmap? {
         val drawable = (if (intent != null) pm.getActivityBanner(intent) else null)
             ?: pm.getApplicationBanner(packageName)
         drawable?.toBitmap(480, 270)?.asImageBitmap()?.also { bannerCache[packageName] = it }
+    } catch (e: Exception) {
+        null
+    }
+}
+
+/** Kullanıcının galeriden seçtiği duvar kağıdı resmini yükler. Erişilemezse null döner. */
+fun loadWallpaperBitmap(context: Context, uriString: String): ImageBitmap? {
+    if (uriString.isBlank()) return null
+    return try {
+        context.contentResolver.openInputStream(Uri.parse(uriString))?.use { stream ->
+            BitmapFactory.decodeStream(stream)?.asImageBitmap()
+        }
     } catch (e: Exception) {
         null
     }

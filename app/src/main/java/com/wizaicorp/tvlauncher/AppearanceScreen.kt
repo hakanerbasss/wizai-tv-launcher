@@ -1,5 +1,7 @@
 package com.wizaicorp.tvlauncher
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +37,7 @@ import kotlinx.coroutines.delay
 /** Görünüm ve davranış ayarları. Kaydırılabilir; her satır OK ile değişir. */
 @Composable
 fun AppearanceScreen(state: AppState) {
+    val context = LocalContext.current
     val first = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         delay(300)
@@ -93,6 +97,24 @@ fun AppearanceScreen(state: AppState) {
                     )
                 }
             }
+        }
+        item {
+            OptionRow(
+                "Duvar kağıdı resmi",
+                if (state.wallpaperUri.isBlank()) "Yok — seçmek için OK" else "Seçili — kaldırmak için OK"
+            ) {
+                if (state.wallpaperUri.isBlank()) {
+                    WallpaperPicker.launch?.invoke()
+                } else {
+                    state.setWallpaper("")
+                }
+            }
+        }
+        item {
+            OptionRow(
+                "Ekran koruyucu",
+                "Sistem ayarları (Ayarlar > Ekran koruyucu) içinden seçilir"
+            ) { safeStart(context, Intent(Settings.ACTION_DREAM_SETTINGS)) }
         }
         item { SectionLabel("Kutular") }
         item { OptionRow("Köşe şekli", CornerNames[state.corner.coerceIn(0, 2)]) { state.updateCorner((state.corner + 1) % CornerNames.size) } }

@@ -73,6 +73,15 @@ class AppState(context: Context) {
         netflixNew = items
     }
 
+    // Duvar kağıdı resmi: boşsa varsayılan gradyan arka plan kullanılır
+    var wallpaperUri by mutableStateOf(prefs.getStringOrNull("wallpaper_uri").orEmpty())
+        private set
+
+    fun setWallpaper(uri: String) {
+        wallpaperUri = uri
+        prefs.putString("wallpaper_uri", uri)
+    }
+
     fun setSlot(index: Int, packageName: String) {
         slots[index] = packageName
         prefs.putString("slot_$index", packageName)

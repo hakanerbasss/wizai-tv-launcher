@@ -86,6 +86,17 @@ fun HomeScreen() {
     WeatherLoader(state)
     NetflixLoader(state)
 
+    val pickedWallpaper by WallpaperPicker.pickedUri
+    LaunchedEffect(pickedWallpaper) {
+        pickedWallpaper?.let {
+            state.setWallpaper(it.toString())
+            WallpaperPicker.pickedUri.value = null
+        }
+    }
+    val wallpaper by produceState<ImageBitmap?>(initialValue = null, state.wallpaperUri) {
+        value = withContext(Dispatchers.IO) { loadWallpaperBitmap(context, state.wallpaperUri) }
+    }
+
     // Geri tuşu: alt ekranlardan ana ekrana döner, ana ekranda hiçbir şey yapmaz
     BackHandler(enabled = true) { screen = Screen.Home }
 
@@ -93,6 +104,19 @@ fun HomeScreen() {
         Box(modifier = Modifier
             .fillMaxSize()
             .screenBackground(look)) {
+            if (wallpaper != null) {
+                Image(
+                    bitmap = wallpaper!!,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.45f))
+                )
+            }
             when (val s = screen) {
                 is Screen.Home -> HomeContent(
                     context = context,
