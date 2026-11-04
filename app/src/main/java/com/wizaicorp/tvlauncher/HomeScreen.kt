@@ -301,7 +301,7 @@ private fun NetflixLoader(state: AppState) {
     LaunchedEffect(Unit) {
         if (TMDB_API_KEY.isBlank()) return@LaunchedEffect
         while (true) {
-            state.setNetflixNew(fetchNetflixNewReleases())
+            state.updateNetflixNew(fetchNetflixNewReleases())
             delay(6 * 60 * 60_000L)
         }
     }

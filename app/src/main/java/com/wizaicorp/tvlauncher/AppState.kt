@@ -69,7 +69,7 @@ class AppState(context: Context) {
     var netflixNew by mutableStateOf<List<NetflixItem>>(emptyList())
         private set
 
-    fun setNetflixNew(items: List<NetflixItem>) {
+    fun updateNetflixNew(items: List<NetflixItem>) {
         netflixNew = items
     }
 
