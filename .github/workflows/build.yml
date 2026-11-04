@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,3 +30,14 @@ jobs:
         with:
           name: WizaiTV-debug
           path: app/build/outputs/apk/debug/*.apk
+
+      - name: Yayınla (latest release, Termux için sabit link)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "WizaiTV debug (son derleme)"
+          body: "Otomatik derleme. Kurulum: adb install -r app-debug.apk"
+          files: app/build/outputs/apk/debug/*.apk
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
