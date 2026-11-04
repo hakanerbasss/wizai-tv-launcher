@@ -65,6 +65,14 @@ class AppState(context: Context) {
         watchNext = queryWatchNext(context)
     }
 
+    // Netflix'te yeni (TMDB): anahtar boşsa her zaman boş kalır, satır gösterilmez
+    var netflixNew by mutableStateOf<List<NetflixItem>>(emptyList())
+        private set
+
+    fun setNetflixNew(items: List<NetflixItem>) {
+        netflixNew = items
+    }
+
     fun setSlot(index: Int, packageName: String) {
         slots[index] = packageName
         prefs.putString("slot_$index", packageName)

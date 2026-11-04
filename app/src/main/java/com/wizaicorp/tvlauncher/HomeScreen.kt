@@ -84,6 +84,7 @@ fun HomeScreen() {
         withContext(Dispatchers.IO) { state.refreshWatchNext(context) }
     }
     WeatherLoader(state)
+    NetflixLoader(state)
 
     // Geri tuşu: alt ekranlardan ana ekrana döner, ana ekranda hiçbir şey yapmaz
     BackHandler(enabled = true) { screen = Screen.Home }
@@ -241,6 +242,26 @@ private fun HomeContent(
             }
         }
 
+        if (state.netflixNew.isNotEmpty()) {
+            Text(
+                text = "Netflix'te yeni",
+                color = TextMuted,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(state.netflixNew, key = { it.id }) { item ->
+                    NetflixCard(
+                        item = item,
+                        onClick = { state.open(context, PKG_NETFLIX) }
+                    )
+                }
+            }
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -270,6 +291,18 @@ private fun HomeContent(
                     onLongClick = { onCard(app.packageName, -1) }
                 )
             }
+        }
+    }
+}
+
+/** TMDB anahtarı tanımlıysa Netflix'teki yeni filmleri periyodik olarak çeker. */
+@Composable
+private fun NetflixLoader(state: AppState) {
+    LaunchedEffect(Unit) {
+        if (TMDB_API_KEY.isBlank()) return@LaunchedEffect
+        while (true) {
+            state.setNetflixNew(fetchNetflixNewReleases())
+            delay(6 * 60 * 60_000L)
         }
     }
 }
@@ -503,6 +536,49 @@ private fun WatchNextCard(item: WatchNextItem, onClick: () -> Unit) {
                 contentAlignment = Alignment.Center
             ) {
                 Text("▶", color = LocalLook.current.accent, fontSize = 28.sp)
+            }
+        }
+        Text(
+            text = item.title,
+            color = TextMain,
+            fontSize = 13.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 6.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+    }
+}
+
+/** Netflix'te yeni çıkan film kartı (TMDB afişi). Dokununca Netflix açılır. */
+@Composable
+private fun NetflixCard(item: NetflixItem, onClick: () -> Unit) {
+    val poster by produceState<ImageBitmap?>(initialValue = null, item.posterPath) {
+        value = item.posterPath?.let { loadNetflixPoster(it) }
+    }
+    FocusTile(
+        modifier = Modifier.width(120.dp),
+        onClick = onClick,
+        padding = 0
+    ) {
+        if (poster != null) {
+            Image(
+                bitmap = poster!!,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(2f / 3f)
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(2f / 3f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("N", color = LocalLook.current.accent, fontSize = 28.sp, fontWeight = FontWeight.Bold)
             }
         }
         Text(
