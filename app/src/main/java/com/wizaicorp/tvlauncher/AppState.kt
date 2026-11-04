@@ -88,6 +88,14 @@ class AppState(context: Context) {
         prefs.putInt("accent_index", value)
     }
 
+    /** Hazır bir temayı (arka plan + vurgu rengi + köşe + odak efekti) tek seferde uygular. */
+    fun applyTheme(preset: ThemePreset) {
+        setBg(preset.bgIndex)
+        setAccent(preset.accentIndex)
+        updateCorner(preset.corner)
+        updateFocusFx(preset.focusFx)
+    }
+
     fun updateAnim(value: Boolean) {
         anim = value
         prefs.putBool("anim", value)

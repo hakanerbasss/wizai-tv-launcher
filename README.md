@@ -32,9 +32,9 @@ Paket adı: `com.wizaicorp.tvlauncher`
 13. Wi-Fi / Bluetooth kısayolları ✅
 14. Gezinme sesi ✅
 15. Uygulama bilgisi / kaldır ✅
-16. "İzlemeye devam et" (Watch Next) satırı — TV'de erişim denenecek, çalışırsa kartlara (YouTube son izlenenler) eklenecek
-17. Netflix "yeni çıkanlar" kartı (TMDB; ticari lisans şartı kontrol edilecek)
-18. Tema B (Neon Oyun) ve C (Hava Merkezli) — tasarımlar hazır
+16. "İzlemeye devam et" (Watch Next) satırı ✅ (cihazda erişim izni verilmezse satır sessizce gizlenir)
+17. Netflix "yeni çıkanlar" kartı (TMDB) ✅ kod hazır — `Netflix.kt` içindeki `TMDB_API_KEY` boş, anahtar girilmeden satır görünmez; ticari lisans şartı hâlâ kontrol edilecek
+18. Tema B (Neon Oyun) ve C (Hava Merkezli) ✅ — Görünüm ekranında "Tema" satırından seçilir
 19. Duvar kağıdı resmi + ekran koruyucu
 20. TİS takvim kutusu (ayrı TV'ye özel TİS uygulaması hazır olunca; paket `com.wizaicorp.tisasistani`)
 

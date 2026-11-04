@@ -32,6 +32,15 @@ val AccentPresets: List<Color> = listOf(
     Color(0xFF60A5FA)
 )
 
+/** Hazır tema paketleri: arka plan + vurgu rengi + köşe + odak efektini bir arada uygular. */
+data class ThemePreset(val name: String, val bgIndex: Int, val accentIndex: Int, val corner: Int, val focusFx: Int)
+
+val ThemePresets: List<ThemePreset> = listOf(
+    ThemePreset("Tema A (Varsayılan)", bgIndex = 0, accentIndex = 0, corner = 1, focusFx = 0),
+    ThemePreset("Tema B (Neon Oyun)", bgIndex = 5, accentIndex = 1, corner = 0, focusFx = 3),
+    ThemePreset("Tema C (Hava Merkezli)", bgIndex = 6, accentIndex = 4, corner = 2, focusFx = 1)
+)
+
 val CornerNames: List<String> = listOf("Keskin", "Orta", "Yuvarlak")
 val CornerSizes: List<Dp> = listOf(12.dp, 24.dp, 36.dp)
 val FocusFxNames: List<String> = listOf("Çerçeve", "Büyüme", "Çerçeve + büyüme", "Parlama")

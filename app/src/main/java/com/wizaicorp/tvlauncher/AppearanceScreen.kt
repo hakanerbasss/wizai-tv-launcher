@@ -55,6 +55,18 @@ fun AppearanceScreen(state: AppState) {
             Text("Görünüm ve ayarlar", color = TextMain, fontSize = 30.sp, fontWeight = FontWeight.SemiBold)
             Text("Yukarı/aşağı ile gez, OK ile değiştir. Geri tuşu ana ekrana döner.", color = TextMuted, fontSize = 14.sp)
         }
+        item {
+            val currentTheme = ThemePresets.indexOfFirst {
+                it.bgIndex == state.bgIndex && it.accentIndex == state.accentIndex &&
+                    it.corner == state.corner && it.focusFx == state.focusFx
+            }
+            OptionRow(
+                "Tema",
+                ThemePresets.getOrNull(currentTheme)?.name ?: "Özel karışım"
+            ) {
+                state.applyTheme(ThemePresets[(currentTheme + 1).mod(ThemePresets.size)])
+            }
+        }
         item { SectionLabel("Arka plan") }
         item {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 6.dp)) {
