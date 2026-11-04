@@ -43,12 +43,16 @@ fun loadApps(context: Context): List<AppEntry> {
     return result.values.sortedBy { it.label.lowercase() }
 }
 
-fun isInstalled(context: Context, packageName: String): Boolean {
+/** TV uygulamalarının kendi logosu (banner). Yoksa null döner. */
+fun loadBanner(context: Context, packageName: String): ImageBitmap? {
+    val pm = context.packageManager
     return try {
-        context.packageManager.getPackageInfo(packageName, 0)
-        true
+        val intent = pm.getLeanbackLaunchIntentForPackage(packageName)
+        val drawable = (if (intent != null) pm.getActivityBanner(intent) else null)
+            ?: pm.getApplicationBanner(packageName)
+        drawable?.toBitmap(320, 180)?.asImageBitmap()
     } catch (e: Exception) {
-        false
+        null
     }
 }
 
