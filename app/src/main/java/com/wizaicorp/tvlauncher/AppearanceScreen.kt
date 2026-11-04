@@ -83,15 +83,15 @@ fun AppearanceScreen(state: AppState) {
             }
         }
         item { SectionLabel("Kutular") }
-        item { OptionRow("Köşe şekli", CornerNames[state.corner.coerceIn(0, 2)]) { state.setCorner((state.corner + 1) % CornerNames.size) } }
-        item { OptionRow("Odak efekti", FocusFxNames[state.focusFx.coerceIn(0, 3)]) { state.setFocusFx((state.focusFx + 1) % FocusFxNames.size) } }
-        item { OptionRow("Uygulama satırı", if (state.tileBanner) "Logo kartları" else "Simgeler") { state.setTileBanner(!state.tileBanner) } }
+        item { OptionRow("Köşe şekli", CornerNames[state.corner.coerceIn(0, 2)]) { state.updateCorner((state.corner + 1) % CornerNames.size) } }
+        item { OptionRow("Odak efekti", FocusFxNames[state.focusFx.coerceIn(0, 3)]) { state.updateFocusFx((state.focusFx + 1) % FocusFxNames.size) } }
+        item { OptionRow("Uygulama satırı", if (state.tileBanner) "Logo kartları" else "Simgeler") { state.updateTileBanner(!state.tileBanner) } }
         item { SectionLabel("Davranış") }
-        item { OptionRow("Animasyonlar", onOff(state.anim)) { state.setAnim(!state.anim) } }
-        item { OptionRow("Saat biçimi", if (state.clock24) "24 saat" else "12 saat") { state.setClock24(!state.clock24) } }
-        item { OptionRow("Üst kutularda OK", if (state.okOpens) "Direkt aç" else "Kart aç (Aç / Değiştir / Favori…)") { state.setOkOpens(!state.okOpens) } }
-        item { OptionRow("Satır sırası", if (state.sortRecent) "Son kullanılan önde" else "A-Z") { state.setSortRecent(!state.sortRecent) } }
-        item { OptionRow("Gezinme sesi", onOff(state.sounds)) { state.setSounds(!state.sounds) } }
+        item { OptionRow("Animasyonlar", onOff(state.anim)) { state.updateAnim(!state.anim) } }
+        item { OptionRow("Saat biçimi", if (state.clock24) "24 saat" else "12 saat") { state.updateClock24(!state.clock24) } }
+        item { OptionRow("Üst kutularda OK", if (state.okOpens) "Direkt aç" else "Kart aç (Aç / Değiştir / Favori…)") { state.updateOkOpens(!state.okOpens) } }
+        item { OptionRow("Satır sırası", if (state.sortRecent) "Son kullanılan önde" else "A-Z") { state.updateSortRecent(!state.sortRecent) } }
+        item { OptionRow("Gezinme sesi", onOff(state.sounds)) { state.updateSounds(!state.sounds) } }
         item { OptionRow("Hava durumu şehri", Cities[state.cityIndex.coerceIn(0, Cities.lastIndex)].name) { state.setCity((state.cityIndex + 1) % Cities.size) } }
         item {
             OptionRow(

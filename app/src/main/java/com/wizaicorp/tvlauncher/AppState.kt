@@ -72,42 +72,42 @@ class AppState(context: Context) {
         prefs.putInt("accent_index", value)
     }
 
-    fun setAnim(value: Boolean) {
+    fun updateAnim(value: Boolean) {
         anim = value
         prefs.putBool("anim", value)
     }
 
-    fun setCorner(value: Int) {
+    fun updateCorner(value: Int) {
         corner = value
         prefs.putInt("corner", value)
     }
 
-    fun setFocusFx(value: Int) {
+    fun updateFocusFx(value: Int) {
         focusFx = value
         prefs.putInt("focus_fx", value)
     }
 
-    fun setClock24(value: Boolean) {
+    fun updateClock24(value: Boolean) {
         clock24 = value
         prefs.putBool("clock24", value)
     }
 
-    fun setTileBanner(value: Boolean) {
+    fun updateTileBanner(value: Boolean) {
         tileBanner = value
         prefs.putBool("tile_banner", value)
     }
 
-    fun setSortRecent(value: Boolean) {
+    fun updateSortRecent(value: Boolean) {
         sortRecent = value
         prefs.putBool("sort_recent", value)
     }
 
-    fun setSounds(value: Boolean) {
+    fun updateSounds(value: Boolean) {
         sounds = value
         prefs.putBool("sounds", value)
     }
 
-    fun setOkOpens(value: Boolean) {
+    fun updateOkOpens(value: Boolean) {
         okOpens = value
         prefs.putBool("ok_opens", value)
     }
