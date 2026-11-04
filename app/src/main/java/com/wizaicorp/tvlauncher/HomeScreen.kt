@@ -2,7 +2,9 @@ package com.wizaicorp.tvlauncher
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
+import android.view.SoundEffectConstants
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -15,9 +17,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,7 +34,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -45,6 +49,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -56,43 +61,26 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private const val PKG_TIS = "com.wizaicorp.tisasistani"
-private const val PKG_NETFLIX = "com.netflix.ninja"
-private const val PKG_YOUTUBE = "com.google.android.youtube.tv"
-
 sealed class Screen {
     object Home : Screen()
     object Appearance : Screen()
+    object Weather : Screen()
     data class Picker(val slot: Int) : Screen()
+    data class Card(val pkg: String, val slot: Int) : Screen()
 }
 
 @Composable
 fun HomeScreen() {
     val context = LocalContext.current
-    val prefs = remember { Prefs(context) }
+    val state = remember { AppState(context) }
     var apps by remember { mutableStateOf<List<AppEntry>>(emptyList()) }
-    val slots = remember {
-        mutableStateListOf(
-            prefs.slot(0, PKG_TIS),
-            prefs.slot(1, PKG_NETFLIX),
-            prefs.slot(2, PKG_YOUTUBE)
-        )
-    }
-    var bgIndex by remember { mutableStateOf(prefs.bgIndex) }
-    var accentIndex by remember { mutableStateOf(prefs.accentIndex) }
-    var animOn by remember { mutableStateOf(prefs.anim) }
     var screen by remember { mutableStateOf<Screen>(Screen.Home) }
+    val look = state.look()
 
-    val look = Look(
-        bg = BgPresets[bgIndex.coerceIn(0, BgPresets.lastIndex)].second,
-        accent = AccentPresets[accentIndex.coerceIn(0, AccentPresets.lastIndex)],
-        anim = animOn
-    )
-
-    // Ana ekrana her dönüşte uygulama listesini yenile
     LaunchedEffect(ResumeSignal.tick.value) {
         apps = withContext(Dispatchers.Default) { loadApps(context) }
     }
+    WeatherLoader(state)
 
     // Geri tuşu: alt ekranlardan ana ekrana döner, ana ekranda hiçbir şey yapmaz
     BackHandler(enabled = true) { screen = Screen.Home }
@@ -100,39 +88,34 @@ fun HomeScreen() {
     CompositionLocalProvider(LocalLook provides look) {
         Box(modifier = Modifier
             .fillMaxSize()
-            .background(look.bg)) {
+            .screenBackground(look)) {
             when (val s = screen) {
                 is Screen.Home -> HomeContent(
                     context = context,
+                    state = state,
                     apps = apps,
-                    slots = slots,
                     onEditSlot = { screen = Screen.Picker(it) },
-                    onAppearance = { screen = Screen.Appearance }
+                    onCard = { pkg, slot -> screen = Screen.Card(pkg, slot) },
+                    onAppearance = { screen = Screen.Appearance },
+                    onWeather = { screen = Screen.Weather }
                 )
-                is Screen.Appearance -> AppearanceScreen(
-                    bgIndex = bgIndex,
-                    accentIndex = accentIndex,
-                    animOn = animOn,
-                    onBg = {
-                        bgIndex = it
-                        prefs.bgIndex = it
-                    },
-                    onAccent = {
-                        accentIndex = it
-                        prefs.accentIndex = it
-                    },
-                    onAnim = {
-                        animOn = it
-                        prefs.anim = it
-                    }
-                )
+                is Screen.Appearance -> AppearanceScreen(state)
+                is Screen.Weather -> WeatherDetailScreen(state)
                 is Screen.Picker -> PickerScreen(
                     apps = apps,
                     onPick = { pkg ->
-                        slots[s.slot] = pkg
-                        prefs.setSlot(s.slot, pkg)
+                        state.setSlot(s.slot, pkg)
                         screen = Screen.Home
                     }
+                )
+                is Screen.Card -> AppCard(
+                    context = context,
+                    state = state,
+                    apps = apps,
+                    pkg = s.pkg,
+                    slot = s.slot,
+                    onClose = { screen = Screen.Home },
+                    onEditSlot = { screen = Screen.Picker(it) }
                 )
             }
         }
@@ -142,10 +125,12 @@ fun HomeScreen() {
 @Composable
 private fun HomeContent(
     context: Context,
+    state: AppState,
     apps: List<AppEntry>,
-    slots: List<String>,
     onEditSlot: (Int) -> Unit,
-    onAppearance: () -> Unit
+    onCard: (String, Int) -> Unit,
+    onAppearance: () -> Unit,
+    onWeather: () -> Unit
 ) {
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -157,59 +142,79 @@ private fun HomeContent(
         }
     }
 
+    // Üst kutuya OK: boşsa seçtir, ayara göre direkt aç ya da kart göster
+    fun slotClick(i: Int) {
+        val pkg = state.slots[i]
+        val installed = apps.any { it.packageName == pkg }
+        when {
+            pkg.isEmpty() || (apps.isNotEmpty() && !installed) -> onEditSlot(i)
+            state.okOpens -> state.open(context, pkg)
+            else -> onCard(pkg, i)
+        }
+    }
+
+    fun slotLong(i: Int) {
+        val pkg = state.slots[i]
+        if (pkg.isEmpty()) onEditSlot(i) else onCard(pkg, i)
+    }
+
+    val list = state.orderedApps(apps)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 36.dp, vertical = 28.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = 36.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        TopBar(context = context, onAppearance = onAppearance)
+        TopBar(context = context, state = state, onAppearance = onAppearance)
 
         Row(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             AppSlotTile(
                 modifier = Modifier
                     .weight(2f)
                     .fillMaxHeight(),
-                pkg = slots[0],
+                pkg = state.slots[0],
                 apps = apps,
                 focusRequester = firstFocus,
-                onOpen = { launchApp(context, slots[0]) },
-                onEdit = { onEditSlot(0) }
+                onClick = { slotClick(0) },
+                onLong = { slotLong(0) }
             )
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 AppSlotTile(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),
-                    pkg = slots[1],
+                    pkg = state.slots[1],
                     apps = apps,
-                    onOpen = { launchApp(context, slots[1]) },
-                    onEdit = { onEditSlot(1) }
+                    onClick = { slotClick(1) },
+                    onLong = { slotLong(1) }
                 )
                 AppSlotTile(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),
-                    pkg = slots[2],
+                    pkg = state.slots[2],
                     apps = apps,
-                    onOpen = { launchApp(context, slots[2]) },
-                    onEdit = { onEditSlot(2) }
+                    onClick = { slotClick(2) },
+                    onLong = { slotLong(2) }
                 )
             }
             WeatherTile(
                 modifier = Modifier
                     .weight(1.3f)
-                    .fillMaxHeight()
+                    .fillMaxHeight(),
+                state = state,
+                onClick = onWeather
             )
         }
 
@@ -220,29 +225,37 @@ private fun HomeContent(
             Text(
                 text = "Tüm uygulamalar",
                 color = TextMuted,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = "Kutuyu değiştirmek için OK tuşuna uzun bas",
+                text = "OK: aç  ·  OK'e uzun bas: menü (favori, gizle, kutuya koy…)",
                 color = TextMuted,
-                fontSize = 14.sp
+                fontSize = 13.sp
             )
         }
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(apps, key = { it.packageName }) { app ->
-                AppIcon(app) { launchApp(context, app.packageName) }
+            items(list, key = { it.packageName }) { app ->
+                AppIcon(
+                    app = app,
+                    favorite = app.packageName in state.favorites,
+                    banner = state.tileBanner,
+                    onClick = { state.open(context, app.packageName) },
+                    onLongClick = { onCard(app.packageName, -1) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun TopBar(context: Context, onAppearance: () -> Unit) {
-    val timeFormat = remember { SimpleDateFormat("HH:mm", Locale("tr", "TR")) }
+private fun TopBar(context: Context, state: AppState, onAppearance: () -> Unit) {
+    val timeFormat = remember(state.clock24) {
+        SimpleDateFormat(if (state.clock24) "HH:mm" else "h:mm a", Locale("tr", "TR"))
+    }
     val dayFormat = remember { SimpleDateFormat("EEEE", Locale("tr", "TR")) }
     val dateFormat = remember { SimpleDateFormat("d MMMM yyyy", Locale("tr", "TR")) }
     val now by produceState(initialValue = System.currentTimeMillis()) {
@@ -262,91 +275,81 @@ private fun TopBar(context: Context, onAppearance: () -> Unit) {
             Text(
                 text = timeFormat.format(date),
                 color = TextMain,
-                fontSize = 56.sp,
+                fontSize = 52.sp,
                 fontWeight = FontWeight.SemiBold
             )
-            Column(modifier = Modifier.padding(start = 20.dp)) {
+            Column(modifier = Modifier.padding(start = 18.dp)) {
                 Text(
                     text = dayFormat.format(date),
                     color = TextMain,
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
                     text = dateFormat.format(date),
                     color = TextMuted,
-                    fontSize = 18.sp
+                    fontSize = 16.sp
                 )
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FocusTile(
-                modifier = Modifier.width(140.dp),
-                onClick = onAppearance,
-                padding = 12
-            ) {
-                Text(
-                    text = "Görünüm",
-                    color = TextMain,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            }
-            FocusTile(
-                modifier = Modifier.width(140.dp),
-                onClick = {
-                    val intent = Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    try {
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        // ayarlar açılamazsa sessizce geç
-                    }
-                },
-                padding = 12
-            ) {
-                Text(
-                    text = "Ayarlar",
-                    color = TextMain,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            BarButton("Wi-Fi") { safeStart(context, Intent(Settings.ACTION_WIFI_SETTINGS)) }
+            BarButton("Bluetooth") { safeStart(context, Intent(Settings.ACTION_BLUETOOTH_SETTINGS)) }
+            BarButton("Görünüm", onAppearance)
+            BarButton("Ayarlar") { safeStart(context, Intent(Settings.ACTION_SETTINGS)) }
         }
     }
 }
 
-/** Kullanıcının seçtiği uygulamayı gösteren kutu. OK = aç, OK'e uzun bas = değiştir. */
+@Composable
+private fun BarButton(text: String, onClick: () -> Unit) {
+    FocusTile(
+        modifier = Modifier.width(116.dp),
+        onClick = onClick,
+        padding = 10
+    ) {
+        Text(
+            text = text,
+            color = TextMain,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+    }
+}
+
+@Composable
+private fun rememberBanner(pkg: String): ImageBitmap? {
+    val context = LocalContext.current
+    val banner by produceState<ImageBitmap?>(initialValue = null, pkg) {
+        value = if (pkg.isEmpty()) null else withContext(Dispatchers.IO) { loadBanner(context, pkg) }
+    }
+    return banner
+}
+
+/** Üstteki büyük/küçük kutular. Logo varsa kutuyu tamamen doldurur, yoksa simge + ad gösterir. */
 @Composable
 private fun AppSlotTile(
     modifier: Modifier,
     pkg: String,
     apps: List<AppEntry>,
     focusRequester: FocusRequester? = null,
-    onOpen: () -> Unit,
-    onEdit: () -> Unit
+    onClick: () -> Unit,
+    onLong: () -> Unit
 ) {
-    val context = LocalContext.current
     val entry = apps.firstOrNull { it.packageName == pkg }
     val empty = pkg.isEmpty()
     val missing = pkg.isNotEmpty() && apps.isNotEmpty() && entry == null
-    val banner by produceState<ImageBitmap?>(initialValue = null, pkg) {
-        value = if (pkg.isEmpty()) {
-            null
-        } else {
-            withContext(Dispatchers.IO) { loadBanner(context, pkg) }
-        }
-    }
-    val bannerImage = banner
+    val bannerImage = rememberBanner(pkg)
     val showBanner = entry != null && bannerImage != null
 
     FocusTile(
         modifier = modifier,
-        onClick = { if (empty || missing) onEdit() else onOpen() },
-        onLongClick = onEdit,
+        onClick = onClick,
+        onLongClick = onLong,
         focusRequester = focusRequester,
-        padding = if (showBanner) 0 else 20
+        padding = if (showBanner) 0 else 16
     ) {
         if (showBanner && bannerImage != null) {
             Image(
@@ -372,7 +375,7 @@ private fun AppSlotTile(
                         Image(
                             bitmap = entry.icon,
                             contentDescription = null,
-                            modifier = Modifier.size(64.dp)
+                            modifier = Modifier.size(72.dp)
                         )
                     }
                     Text(
@@ -390,36 +393,195 @@ private fun AppSlotTile(
     }
 }
 
+/** Alt satırdaki uygulama kartı. Logo kartı: 16:9 logo + altında ad. Simge modu: büyük simge + ad. */
 @Composable
-internal fun AppIcon(app: AppEntry, onClick: () -> Unit) {
+internal fun AppIcon(
+    app: AppEntry,
+    favorite: Boolean = false,
+    banner: Boolean = true,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null
+) {
+    val bannerImage = if (banner) rememberBanner(app.packageName) else null
     FocusTile(
-        modifier = Modifier.width(112.dp),
+        modifier = Modifier.width(if (bannerImage != null) 150.dp else 112.dp),
         onClick = onClick,
-        padding = 10
+        onLongClick = onLongClick,
+        padding = 0
     ) {
-        if (app.icon != null) {
+        if (bannerImage != null) {
             Image(
-                bitmap = app.icon,
+                bitmap = bannerImage,
                 contentDescription = null,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(48.dp)
-                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
             )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (app.icon != null) {
+                    Image(
+                        bitmap = app.icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp)
+                    )
+                } else {
+                    Spacer(Modifier.size(64.dp))
+                }
+            }
         }
         Text(
-            text = app.label,
+            text = (if (favorite) "★ " else "") + app.label,
             color = TextMain,
-            fontSize = 14.sp,
+            fontSize = 13.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .padding(top = 6.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp)
                 .align(Alignment.CenterHorizontally)
         )
     }
 }
 
-/** Kumandayla odaklanınca beyaz çerçeve ve hafif büyüme gösteren kutu. */
+/** Uygulamaya OK'e basınca (ya da uzun basınca) açılan kart: aç, değiştir, favori, gizle, bilgi, kaldır. */
+@Composable
+private fun AppCard(
+    context: Context,
+    state: AppState,
+    apps: List<AppEntry>,
+    pkg: String,
+    slot: Int,
+    onClose: () -> Unit,
+    onEditSlot: (Int) -> Unit
+) {
+    val entry = apps.firstOrNull { it.packageName == pkg }
+    val banner = rememberBanner(pkg)
+    val first = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        delay(250)
+        try {
+            first.requestFocus()
+        } catch (e: Exception) {
+            // yoksay
+        }
+    }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .width(560.dp)
+                .clip(RoundedCornerShape(28.dp))
+                .background(LocalLook.current.tile)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .width(176.dp)
+                        .aspectRatio(16f / 9f)
+                        .clip(RoundedCornerShape(14.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (banner != null) {
+                        Image(
+                            bitmap = banner,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else if (entry?.icon != null) {
+                        Image(bitmap = entry.icon, contentDescription = null, modifier = Modifier.size(64.dp))
+                    }
+                }
+                Column(modifier = Modifier.padding(start = 18.dp)) {
+                    Text(
+                        text = entry?.label ?: pkg,
+                        color = TextMain,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = if (slot >= 0) "Üst kutu ${slot + 1}" else "Uygulama",
+                        color = TextMuted,
+                        fontSize = 15.sp
+                    )
+                }
+            }
+            Spacer(Modifier.height(4.dp))
+            CardButton("Aç", first) {
+                state.open(context, pkg)
+                onClose()
+            }
+            if (slot >= 0) {
+                CardButton("Bu kutuya başka uygulama seç") { onEditSlot(slot) }
+                CardButton("Kutuyu boşalt") {
+                    state.setSlot(slot, "")
+                    onClose()
+                }
+            } else {
+                CardButton("Üst kutuya koy: 1 (büyük)") {
+                    state.setSlot(0, pkg)
+                    onClose()
+                }
+                CardButton("Üst kutuya koy: 2") {
+                    state.setSlot(1, pkg)
+                    onClose()
+                }
+                CardButton("Üst kutuya koy: 3") {
+                    state.setSlot(2, pkg)
+                    onClose()
+                }
+            }
+            val fav = pkg in state.favorites
+            CardButton(if (fav) "Favorilerden çıkar" else "Favorilere ekle (satırın başına)") {
+                state.toggleFavorite(pkg)
+                onClose()
+            }
+            CardButton("Satırdan gizle") {
+                state.toggleHidden(pkg)
+                onClose()
+            }
+            CardButton("Uygulama bilgisi") {
+                safeStart(
+                    context,
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$pkg"))
+                )
+            }
+            CardButton("Kaldır") {
+                safeStart(context, Intent(Intent.ACTION_DELETE, Uri.parse("package:$pkg")))
+            }
+        }
+    }
+}
+
+@Composable
+private fun CardButton(text: String, focusRequester: FocusRequester? = null, onClick: () -> Unit) {
+    FocusTile(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick,
+        focusRequester = focusRequester,
+        padding = 10
+    ) {
+        Text(text, color = TextMain, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+    }
+}
+
+/**
+ * Kumandayla odaklanınca vurgulanan kutu. Köşe şekli ve odak efekti kullanıcı ayarından gelir.
+ * Efekt 0: çerçeve, 1: büyüme, 2: çerçeve + büyüme, 3: parlama (vurgu renginde çerçeve).
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun FocusTile(
@@ -432,9 +594,14 @@ internal fun FocusTile(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val look = LocalLook.current
+    val view = LocalView.current
     var focused by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(targetValue = if (focused) 1.04f else 1f, label = "tileScale")
-    val shape = RoundedCornerShape(24.dp)
+    val grows = look.focusFx != 0
+    val target = if (focused && grows) (if (look.focusFx == 1) 1.08f else 1.04f) else 1f
+    val scale by animateFloatAsState(targetValue = target, label = "tileScale")
+    val shape = RoundedCornerShape(look.corner)
+    val borderColor = if (look.focusFx == 3) look.accent else Color.White
+    val showBorder = focused && look.focusFx != 1
     val base = if (focusRequester != null) modifier.focusRequester(focusRequester) else modifier
 
     Column(
@@ -443,10 +610,15 @@ internal fun FocusTile(
                 scaleX = scale
                 scaleY = scale
             }
-            .onFocusChanged { focused = it.isFocused }
+            .onFocusChanged {
+                focused = it.isFocused
+                if (it.isFocused && look.sounds) {
+                    view.playSoundEffect(SoundEffectConstants.CLICK)
+                }
+            }
             .clip(shape)
             .background(fill ?: look.tile)
-            .then(if (focused) Modifier.border(3.dp, Color.White, shape) else Modifier)
+            .then(if (showBorder) Modifier.border(3.dp, borderColor, shape) else Modifier)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(padding.dp),
         content = content

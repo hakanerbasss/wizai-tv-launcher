@@ -25,7 +25,7 @@ fun loadApps(context: Context): List<AppEntry> {
             if (ai.packageName == context.packageName) continue
             if (result.containsKey(ai.packageName)) continue
             val icon = try {
-                info.loadIcon(pm).toBitmap(96, 96).asImageBitmap()
+                info.loadIcon(pm).toBitmap(128, 128).asImageBitmap()
             } catch (e: Exception) {
                 null
             }
@@ -44,13 +44,16 @@ fun loadApps(context: Context): List<AppEntry> {
 }
 
 /** TV uygulamalarının kendi logosu (banner). Yoksa null döner. */
+private val bannerCache = java.util.concurrent.ConcurrentHashMap<String, ImageBitmap>()
+
 fun loadBanner(context: Context, packageName: String): ImageBitmap? {
+    bannerCache[packageName]?.let { return it }
     val pm = context.packageManager
     return try {
         val intent = pm.getLeanbackLaunchIntentForPackage(packageName)
         val drawable = (if (intent != null) pm.getActivityBanner(intent) else null)
             ?: pm.getApplicationBanner(packageName)
-        drawable?.toBitmap(320, 180)?.asImageBitmap()
+        drawable?.toBitmap(480, 270)?.asImageBitmap()?.also { bannerCache[packageName] = it }
     } catch (e: Exception) {
         null
     }
@@ -61,6 +64,17 @@ fun launchApp(context: Context, packageName: String): Boolean {
     val intent = pm.getLeanbackLaunchIntentForPackage(packageName)
         ?: pm.getLaunchIntentForPackage(packageName)
         ?: return false
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    return try {
+        context.startActivity(intent)
+        true
+    } catch (e: Exception) {
+        false
+    }
+}
+
+/** Intent'i güvenle başlatır; açılamazsa uygulama kapanmaz. */
+fun safeStart(context: Context, intent: Intent): Boolean {
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     return try {
         context.startActivity(intent)

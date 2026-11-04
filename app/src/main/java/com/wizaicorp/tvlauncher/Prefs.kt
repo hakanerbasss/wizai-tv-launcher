@@ -6,28 +6,27 @@ import android.content.Context
 class Prefs(context: Context) {
     private val sp = context.getSharedPreferences("wizai_prefs", Context.MODE_PRIVATE)
 
-    /** Kayıt yoksa varsayılan, boş bırakıldıysa "" döner. */
-    fun slot(index: Int, default: String): String = sp.getString("slot_$index", null) ?: default
+    fun getInt(key: String, def: Int): Int = sp.getInt(key, def)
 
-    fun setSlot(index: Int, packageName: String) {
-        sp.edit().putString("slot_$index", packageName).apply()
+    fun putInt(key: String, value: Int) {
+        sp.edit().putInt(key, value).apply()
     }
 
-    var bgIndex: Int
-        get() = sp.getInt("bg_index", 0)
-        set(value) {
-            sp.edit().putInt("bg_index", value).apply()
-        }
+    fun getBool(key: String, def: Boolean): Boolean = sp.getBoolean(key, def)
 
-    var accentIndex: Int
-        get() = sp.getInt("accent_index", 0)
-        set(value) {
-            sp.edit().putInt("accent_index", value).apply()
-        }
+    fun putBool(key: String, value: Boolean) {
+        sp.edit().putBoolean(key, value).apply()
+    }
 
-    var anim: Boolean
-        get() = sp.getBoolean("anim", true)
-        set(value) {
-            sp.edit().putBoolean("anim", value).apply()
-        }
+    fun getStringOrNull(key: String): String? = sp.getString(key, null)
+
+    fun putString(key: String, value: String) {
+        sp.edit().putString(key, value).apply()
+    }
+
+    fun getSet(key: String): Set<String> = HashSet(sp.getStringSet(key, emptySet()) ?: emptySet())
+
+    fun putSet(key: String, value: Set<String>) {
+        sp.edit().putStringSet(key, HashSet(value)).apply()
+    }
 }

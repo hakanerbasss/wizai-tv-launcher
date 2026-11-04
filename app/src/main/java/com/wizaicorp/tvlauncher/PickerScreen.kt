@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -44,7 +45,7 @@ fun PickerScreen(
     ) {
         Text("Kutu için uygulama seç", color = TextMain, fontSize = 32.sp, fontWeight = FontWeight.SemiBold)
         Text("Geri tuşu vazgeçer.", color = TextMuted, fontSize = 16.sp)
-        androidx.compose.foundation.layout.Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(20.dp))
 
         LazyVerticalGrid(
             columns = GridCells.Adaptive(130.dp),
@@ -71,7 +72,7 @@ fun PickerScreen(
                 }
             }
             items(apps, key = { it.packageName }) { app ->
-                AppIcon(app) { onPick(app.packageName) }
+                AppIcon(app, onClick = { onPick(app.packageName) })
             }
         }
     }
