@@ -73,6 +73,14 @@ fun loadWallpaperBitmap(context: Context, uriString: String): ImageBitmap? {
     }
 }
 
+/** Paket kurulu mu? TİS takvim kutusu gibi "hazır olunca görünsün" özellikler için kullanılır. */
+fun isPackageInstalled(context: Context, packageName: String): Boolean = try {
+    context.packageManager.getPackageInfo(packageName, 0)
+    true
+} catch (e: Exception) {
+    false
+}
+
 fun launchApp(context: Context, packageName: String): Boolean {
     val pm = context.packageManager
     val intent = pm.getLeanbackLaunchIntentForPackage(packageName)

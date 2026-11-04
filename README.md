@@ -36,7 +36,7 @@ Paket adı: `com.wizaicorp.tvlauncher`
 17. Netflix "yeni çıkanlar" kartı (TMDB) ✅ kod hazır — `Netflix.kt` içindeki `TMDB_API_KEY` boş, anahtar girilmeden satır görünmez; ticari lisans şartı hâlâ kontrol edilecek
 18. Tema B (Neon Oyun) ve C (Hava Merkezli) ✅ — Görünüm ekranında "Tema" satırından seçilir
 19. Duvar kağıdı resmi + ekran koruyucu
-20. TİS takvim kutusu (ayrı TV'ye özel TİS uygulaması hazır olunca; paket `com.wizaicorp.tisasistani`)
+20. TİS takvim kutusu ✅ kısayolu hazır — `com.wizaicorp.tisasistani` kuruluysa üst çubukta "TİS Takvim" düğmesi görünür, kurulu değilse gizli
 
 ## Diğer yapılacaklar
 - Chrome / tarayıcı kısayolu (TV Bro vb.)

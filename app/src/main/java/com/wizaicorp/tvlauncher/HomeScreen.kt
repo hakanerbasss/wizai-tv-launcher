@@ -373,6 +373,9 @@ private fun TopBar(context: Context, state: AppState, onAppearance: () -> Unit) 
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (isPackageInstalled(context, PKG_TIS)) {
+                BarButton("TİS Takvim") { state.open(context, PKG_TIS) }
+            }
             BarButton("Wi-Fi") { safeStart(context, Intent(Settings.ACTION_WIFI_SETTINGS)) }
             BarButton("Bluetooth") { safeStart(context, Intent(Settings.ACTION_BLUETOOTH_SETTINGS)) }
             BarButton("Görünüm", onAppearance)
