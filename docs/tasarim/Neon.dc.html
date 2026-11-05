@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Neon Oyun Ana Ekran</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width:1280px;height:720px;box-sizing:border-box;position:relative;overflow:hidden;background:#140B2E;color:#FFFFFF;font-family:'Outfit',system-ui,sans-serif">
+
+<svg aria-hidden="true" width="1280" height="720" viewBox="0 0 1280 720" style="position:absolute;left:0;top:0">
+<defs><filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="70"/></filter></defs>
+<g filter="url(#blur)">
+<circle cx="180" cy="120" r="190" fill="{{accent}}" opacity="0.45"><animate attributeName="cx" values="180;320;180" dur="14s" repeatCount="indefinite"/><animate attributeName="cy" values="120;220;120" dur="11s" repeatCount="indefinite"/></circle>
+<circle cx="1100" cy="620" r="210" fill="#22D3EE" opacity="0.32"><animate attributeName="cx" values="1100;940;1100" dur="16s" repeatCount="indefinite"/><animate attributeName="cy" values="620;520;620" dur="12s" repeatCount="indefinite"/></circle>
+<circle cx="680" cy="360" r="170" fill="#8B5CF6" opacity="0.35"><animate attributeName="cx" values="680;760;680" dur="18s" repeatCount="indefinite"/></circle>
+</g>
+</svg>
+
+<div style="position:absolute;left:0;top:0;width:1280px;height:720px;box-sizing:border-box;padding:28px 36px;display:flex;gap:16px">
+
+<div style="width:320px;flex:none;display:flex;flex-direction:column;gap:16px;min-height:0">
+<div style="height:190px;flex:none;box-sizing:border-box;border-radius:28px;padding:22px 26px;background:linear-gradient(135deg,{{accent}},#8B5CF6);display:flex;flex-direction:column;justify-content:space-between">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:18px;font-weight:700;letter-spacing:1px">İYİ ÖĞLEDENLER</div>
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a15 15 0 0 1 20 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M8.7 16a5 5 0 0 1 6.6 0"/><path d="M12 19.5h.01"/></svg>
+</div>
+<div>
+<div style="font-size:78px;font-weight:700;line-height:1;letter-spacing:-2px">13:09</div>
+<div style="font-size:20px;font-weight:700;margin-top:6px">Çarşamba, 4 Kasım</div>
+</div>
+</div>
+
+<div style="flex:1;min-height:0;box-sizing:border-box;border-radius:28px;padding:20px 22px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:16px;letter-spacing:1px;color:#C9BFE8;font-weight:600">İSTANBUL</div>
+<div style="font-size:16px;color:#C9BFE8">Parçalı bulutlu</div>
+</div>
+<div style="display:flex;align-items:center;gap:14px;margin-top:6px">
+<svg aria-hidden="true" width="96" height="84" viewBox="0 0 96 84">
+<g transform="translate(38 38)">
+<g stroke="#FDE047" stroke-width="4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="16s" repeatCount="indefinite"/><line x1="0" y1="-26" x2="0" y2="-33"/><line x1="18" y1="-18" x2="23" y2="-23"/><line x1="26" y1="0" x2="33" y2="0"/><line x1="18" y1="18" x2="23" y2="23"/><line x1="0" y1="26" x2="0" y2="33"/><line x1="-18" y1="18" x2="-23" y2="23"/><line x1="-26" y1="0" x2="-33" y2="0"/><line x1="-18" y1="-18" x2="-23" y2="-23"/></g>
+<circle r="18" fill="#FDE047"/>
+</g>
+<g><animateTransform attributeName="transform" type="translate" values="0 0;6 0;0 0" dur="6s" repeatCount="indefinite"/>
+<circle cx="54" cy="58" r="11" fill="#E4DDFB"/><circle cx="67" cy="50" r="14" fill="#E4DDFB"/><circle cx="81" cy="58" r="10" fill="#E4DDFB"/><rect x="54" y="58" width="27" height="10" rx="5" fill="#E4DDFB"/>
+</g>
+</svg>
+<div style="font-size:76px;font-weight:700;line-height:1">18°</div>
+</div>
+<svg aria-hidden="true" viewBox="0 0 280 150" style="width:100%;flex:1;min-height:0;margin-top:8px" preserveAspectRatio="xMidYMax meet">
+<defs><linearGradient id="bar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
+<rect x="14" y="40" width="34" height="80" rx="12" fill="url(#bar)"><animate attributeName="height" values="0;80;80" keyTimes="0;0.3;1" dur="6s" repeatCount="indefinite"/><animate attributeName="y" values="120;40;40" keyTimes="0;0.3;1" dur="6s" repeatCount="indefinite"/></rect>
+<rect x="64" y="24" width="34" height="96" rx="12" fill="url(#bar)"><animate attributeName="height" values="0;96;96" keyTimes="0;0.35;1" dur="6s" repeatCount="indefinite"/><animate attributeName="y" values="120;24;24" keyTimes="0;0.35;1" dur="6s" repeatCount="indefinite"/></rect>
+<rect x="114" y="48" width="34" height="72" rx="12" fill="url(#bar)"><animate attributeName="height" values="0;72;72" keyTimes="0;0.4;1" dur="6s" repeatCount="indefinite"/><animate attributeName="y" values="120;48;48" keyTimes="0;0.4;1" dur="6s" repeatCount="indefinite"/></rect>
+<rect x="164" y="72" width="34" height="48" rx="12" fill="url(#bar)"><animate attributeName="height" values="0;48;48" keyTimes="0;0.45;1" dur="6s" repeatCount="indefinite"/><animate attributeName="y" values="120;72;72" keyTimes="0;0.45;1" dur="6s" repeatCount="indefinite"/></rect>
+<rect x="214" y="56" width="34" height="64" rx="12" fill="url(#bar)"><animate attributeName="height" values="0;64;64" keyTimes="0;0.5;1" dur="6s" repeatCount="indefinite"/><animate attributeName="y" values="120;56;56" keyTimes="0;0.5;1" dur="6s" repeatCount="indefinite"/></rect>
+<g font-family="Outfit,system-ui,sans-serif" font-size="16" font-weight="700" fill="#FFFFFF" text-anchor="middle">
+<text x="31" y="32">18°</text><text x="81" y="16">20°</text><text x="131" y="40">17°</text><text x="181" y="64">14°</text><text x="231" y="48">16°</text>
+</g>
+<g font-family="Outfit,system-ui,sans-serif" font-size="15" fill="#C9BFE8" text-anchor="middle">
+<text x="31" y="142" fill="#FFFFFF" font-weight="700">Çar</text><text x="81" y="142">Per</text><text x="131" y="142">Cum</text><text x="181" y="142">Cmt</text><text x="231" y="142">Paz</text>
+</g>
+</svg>
+</div>
+</div>
+
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:16px;min-height:0">
+<button type="button" style="height:400px;flex:none;box-sizing:border-box;border:0;border-radius:32px;padding:26px 28px;color:#FFFFFF;font:inherit;text-align:left;display:flex;flex-direction:column;position:relative;overflow:hidden;cursor:pointer;outline:3px solid #FFFFFF;outline-offset:3px;box-shadow:0 0 44px {{accent}};background:linear-gradient(120deg,#2A1457,#5B21B6 55%,#DB2777)">
+<svg aria-hidden="true" width="556" height="400" viewBox="0 0 556 400" style="position:absolute;left:0;top:0"><circle cx="430" cy="110" r="120" fill="#FFFFFF" opacity="0.10"><animate attributeName="r" values="110;140;110" dur="7s" repeatCount="indefinite"/></circle><circle cx="500" cy="190" r="60" fill="#FFFFFF" opacity="0.10"><animate attributeName="cy" values="190;160;190" dur="5s" repeatCount="indefinite"/></circle></svg>
+<div style="position:relative;display:flex;align-items:center;gap:10px"><div style="background:#FDE047;color:#1B1030;font-size:15px;font-weight:700;padding:4px 12px;border-radius:10px">YENİ</div><div style="font-size:18px;font-weight:600">Netflix</div></div>
+<div style="position:relative;margin-top:22px;font-size:48px;font-weight:700;line-height:1.05;max-width:420px">[Film adı]</div>
+<div style="position:relative;margin-top:10px;font-size:18px;line-height:1.35;max-width:400px;color:#F1EAFF">[Filmin kısa açıklaması, bir iki cümle]</div>
+<div style="position:relative;margin-top:18px;display:flex;align-items:center;gap:10px;align-self:flex-start;background:#A3E635;color:#14210A;font-size:20px;font-weight:700;padding:12px 24px;border-radius:30px"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10-6.5a1 1 0 0 0 0-1.72l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>Oynat</div>
+<div style="position:relative;margin-top:auto;display:flex;gap:12px;height:80px">
+<div style="flex:1;border-radius:16px;padding:10px 12px;box-sizing:border-box;display:flex;align-items:flex-end;font-size:15px;font-weight:600;background:linear-gradient(to top,rgba(0,0,0,.6),rgba(0,0,0,0)),linear-gradient(135deg,#22D3EE,#3B82F6)">[Dizi adı]</div>
+<div style="flex:1;border-radius:16px;padding:10px 12px;box-sizing:border-box;display:flex;align-items:flex-end;font-size:15px;font-weight:600;background:linear-gradient(to top,rgba(0,0,0,.6),rgba(0,0,0,0)),linear-gradient(135deg,#F59E0B,#EF4444)">[Film adı]</div>
+<div style="flex:1;border-radius:16px;padding:10px 12px;box-sizing:border-box;display:flex;align-items:flex-end;font-size:15px;font-weight:600;background:linear-gradient(to top,rgba(0,0,0,.6),rgba(0,0,0,0)),linear-gradient(135deg,#10B981,#0EA5E9)">[Dizi adı]</div>
+<div style="flex:1;border-radius:16px;padding:10px 12px;box-sizing:border-box;display:flex;align-items:flex-end;font-size:15px;font-weight:600;background:linear-gradient(to top,rgba(0,0,0,.6),rgba(0,0,0,0)),linear-gradient(135deg,#EC4899,#8B5CF6)">[Film adı]</div>
+</div>
+</button>
+
+<div style="flex:1;min-height:0;box-sizing:border-box;border-radius:28px;padding:18px 20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:16px;letter-spacing:1px;color:#C9BFE8;font-weight:600">YOUTUBE MUSIC · HIZLI ÇAL</div><div style="font-size:16px;color:#C9BFE8">[Şarkı adı] · [Sanatçı]</div></div>
+<div style="display:flex;gap:12px;flex:1;min-height:0">
+<button type="button" style="flex:1;border:0;border-radius:22px;padding:14px 16px;color:#FFFFFF;font:inherit;text-align:left;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;background:linear-gradient(135deg,{{accent}},#8B5CF6)">
+<svg aria-hidden="true" width="56" height="32" viewBox="0 0 56 32"><rect x="0" y="16" width="7" height="8" rx="3.5" fill="#FFFFFF"><animate attributeName="height" values="8;28;12;22;8" dur="1s" repeatCount="indefinite"/><animate attributeName="y" values="24;4;20;10;24" dur="1s" repeatCount="indefinite"/></rect><rect x="12" y="8" width="7" height="24" rx="3.5" fill="#FFFFFF"><animate attributeName="height" values="24;10;28;8;24" dur="0.9s" repeatCount="indefinite"/><animate attributeName="y" values="8;22;4;24;8" dur="0.9s" repeatCount="indefinite"/></rect><rect x="24" y="10" width="7" height="18" rx="3.5" fill="#FFFFFF"><animate attributeName="height" values="18;30;10;24;18" dur="1.2s" repeatCount="indefinite"/><animate attributeName="y" values="14;2;22;8;14" dur="1.2s" repeatCount="indefinite"/></rect><rect x="36" y="4" width="7" height="26" rx="3.5" fill="#FFFFFF"><animate attributeName="height" values="26;12;30;14;26" dur="0.8s" repeatCount="indefinite"/><animate attributeName="y" values="2;20;0;18;2" dur="0.8s" repeatCount="indefinite"/></rect><rect x="48" y="12" width="7" height="14" rx="3.5" fill="#FFFFFF"><animate attributeName="height" values="14;26;8;20;14" dur="1.1s" repeatCount="indefinite"/><animate attributeName="y" values="18;6;24;12;18" dur="1.1s" repeatCount="indefinite"/></rect></svg>
+<div><div style="font-size:22px;font-weight:700">Favorilerim</div><div style="font-size:15px;font-weight:600">Çalıyor</div></div>
+</button>
+<button type="button" style="flex:1;border:0;border-radius:22px;padding:14px 16px;color:#06121F;font:inherit;text-align:left;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;background:linear-gradient(135deg,#22D3EE,#14B8A6)">
+<svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10-6.5a1 1 0 0 0 0-1.72l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
+<div style="font-size:22px;font-weight:700">[Liste adı]</div>
+</button>
+<button type="button" style="flex:1;border:0;border-radius:22px;padding:14px 16px;color:#1A2205;font:inherit;text-align:left;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;background:linear-gradient(135deg,#FDE047,#A3E635)">
+<svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10-6.5a1 1 0 0 0 0-1.72l-10-6.5A1 1 0 0 0 8 5.5z"/></svg>
+<div style="font-size:22px;font-weight:700">[Liste adı]</div>
+</button>
+</div>
+<svg aria-hidden="true" width="100%" height="6" viewBox="0 0 520 6" preserveAspectRatio="none"><rect width="520" height="6" rx="3" fill="rgba(255,255,255,0.15)"/><rect width="120" height="6" rx="3" fill="{{accent}}"><animate attributeName="width" values="40;400;40" dur="20s" repeatCount="indefinite"/></rect></svg>
+</div>
+</div>
+
+<div style="width:300px;flex:none;display:flex;flex-direction:column;gap:16px;min-height:0">
+<button type="button" style="height:362px;flex:none;box-sizing:border-box;border-radius:28px;padding:18px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#FFFFFF;font:inherit;text-align:left;display:flex;flex-direction:column;gap:8px;cursor:pointer">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#67E8F9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+<div><div style="font-size:20px;font-weight:700;line-height:1.1">TİS Asistanı</div><div style="font-size:15px;color:#C9BFE8">Bu hafta</div></div>
+</div>
+<div style="height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px"><div style="width:34px;font-size:16px;color:#C9BFE8">Pzt</div><div style="width:24px;font-size:18px;font-weight:700">2</div><div style="margin-left:auto;font-size:14px;font-weight:600;color:#67E8F9;background:rgba(103,232,249,0.16);padding:3px 10px;border-radius:10px">Çalışma</div></div>
+<div style="height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px"><div style="width:34px;font-size:16px;color:#C9BFE8">Sal</div><div style="width:24px;font-size:18px;font-weight:700">3</div><div style="margin-left:auto;font-size:14px;font-weight:600;color:#67E8F9;background:rgba(103,232,249,0.16);padding:3px 10px;border-radius:10px">Çalışma</div></div>
+<div style="height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px;background:{{accent}};outline:2px solid #FFFFFF"><div style="width:34px;font-size:16px;font-weight:700">Çar</div><div style="width:24px;font-size:18px;font-weight:700">4</div><div style="margin-left:auto;font-size:14px;font-weight:700;color:#FFFFFF;background:rgba(0,0,0,0.3);padding:3px 10px;border-radius:10px">Bugün</div></div>
+<div style="height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px"><div style="width:34px;font-size:16px;color:#C9BFE8">Per</div><div style="width:24px;font-size:18px;font-weight:700">5</div><div style="margin-left:auto;font-size:14px;font-weight:600;color:#67E8F9;background:rgba(103,232,249,0.16);padding:3px 10px;border-radius:10px">Çalışma</div></div>
+<div style="height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px"><div style="width:34px;font-size:16px;color:#C9BFE8">Cum</div><div style="width:24px;font-size:18px;font-weight:700">6</div><div style="margin-left:auto;font-size:14px;font-weight:600;color:#67E8F9;background:rgba(103,232,249,0.16);padding:3px 10px;border-radius:10px">Çalışma</div></div>
+<div style="height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px"><div style="width:34px;font-size:16px;color:#C9BFE8">Cmt</div><div style="width:24px;font-size:18px;font-weight:700">7</div><div style="margin-left:auto;font-size:14px;color:#C9BFE8;padding:3px 10px">İzin</div></div>
+<div style="height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px"><div style="width:34px;font-size:16px;color:#C9BFE8">Paz</div><div style="width:24px;font-size:18px;font-weight:700">8</div><div style="margin-left:auto;font-size:14px;color:#C9BFE8;padding:3px 10px">İzin</div></div>
+</button>
+
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:12px">
+<button type="button" style="border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);border-radius:22px;color:#FFFFFF;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="M10 9.5v5l4.5-2.5z" fill="#FCA5A5"/></svg><div style="font-size:16px">YouTube</div></button>
+<button type="button" style="border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);border-radius:22px;color:#FFFFFF;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg><div style="font-size:16px">Chrome</div></button>
+<button type="button" style="border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);border-radius:22px;color:#FFFFFF;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FDE047" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><div style="font-size:16px">Dosyalar</div></button>
+<button type="button" style="border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);border-radius:22px;color:#FFFFFF;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#C4B5FD" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M3 15h18M8 4v16M16 4v16"/></svg><div style="font-size:16px">Medya</div></button>
+<button type="button" style="border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);border-radius:22px;color:#FFFFFF;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#C9BFE8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="8" stroke-dasharray="3.4 3.1"/></svg><div style="font-size:16px">Ayarlar</div></button>
+<button type="button" style="border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);border-radius:22px;color:#FFFFFF;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg><div style="font-size:16px">Tümü</div></button>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FF3D8B","options":["#FF3D8B","#22D3EE","#A3E635","#FB923C"]},"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#FF3D8B' };
+}
+}
+</script>
+</body>
+</html>

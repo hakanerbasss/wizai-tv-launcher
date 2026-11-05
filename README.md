@@ -38,6 +38,32 @@ Paket adı: `com.wizaicorp.tvlauncher`
 19. Duvar kağıdı resmi + ekran koruyucu
 20. TİS takvim kutusu ✅ kısayolu hazır — `com.wizaicorp.tisasistani` kuruluysa üst çubukta "TİS Takvim" düğmesi görünür, kurulu değilse gizli
 
+## Temalar (3 tane, kullanıcı Görünüm ekranından seçer)
+Tasarım dosyaları: `docs/tasarim/` (tarayıcıda açılır, 1280x720). Tema = sadece renk değil, ana ekran DÜZENİ de değişir.
+Arka plan/vurgu rengi/köşe/odak ayarları her temada çalışır; animasyon kapalıysa hepsi sabit.
+
+**A — Koyu Bento** (`Main.dc.html`, şu an kodlu olan): büyük saat, bento kutular.
+Netflix "Yeni çıkanlar" kartı (3 afiş), TİS Asistanı takvim kutusu (ay + çalışma günü işaretleri),
+YouTube Music "Favori listem" kutusu, Bluetooth/kumanda durum kutusu, hava kutusu. Renkler: #1A1F29 kutu, #F2F4F8 yazı, #9AA4B5 soluk.
+
+**B — Neon Oyun** (`Neon.dc.html`): mor/camgöbeği/pembe neon vurgular (#8B5CF6, #22D3EE, #FF3D8B, #FDE047),
+selamlama ("İYİ ÖĞLEDENLER") + saat, yatay 5 günlük hava şeridi, Netflix "YENİ" satırı (Oynat düğmesi),
+YouTube Music "Hızlı çal" (Favorilerim, Çalıyor), parlayan odak çerçevesi.
+
+**C — Hava Merkezli** (`Hava.dc.html`): lacivert gökyüzü (#0B1B36 → #2C5F9E), ortada dev hava durumu
+(18°, Hissedilen / Rüzgar / Nem), 5 günlük tahmin, altta küçük TİS, Netflix ve diğer kutular.
+
+### Tema durumu
+A, B ve C kodlandı (Görünüm → "Ana ekran teması", OK ile değişir; tema değişince arka plan/vurgu rengi temaya göre ayarlanır). Kutu içerikleri (Netflix yeni çıkanlar, YouTube Music, TİS takvimi) veri kaynağı gelince eklenecek.
+
+### Tema notları (tasarım ilkeleri)
+- `AppState`'e `theme` (0=A, 1=B, 2=C) ekle, `AppearanceScreen`'de "Tema" satırı (OK ile değişir).
+- `HomeContent` içinde temaya göre ayrı layout composable'ları: `ThemeABento`, `ThemeBNeon`, `ThemeCWeather`.
+  Ortak parçalar (FocusTile, AppIcon, AppCard, WeatherTile, Picker) paylaşılsın, tekrar yazılmasın.
+- Kutu içerikleri placeholder'dır ([Film adı] gibi). Gerçek veri gelene kadar boş kart yerine
+  "yakında" göstermeyin; veri yoksa o kutu sadece uygulama logosu olsun (Netflix: TMDB, YouTube: Watch Next, TİS: ayrı TV uygulaması).
+- Her temada tüm kutular kullanıcı tarafından değiştirilebilir kalsın (hardcode yok).
+
 ## Diğer yapılacaklar
 - Chrome / tarayıcı kısayolu (TV Bro vb.)
 - Depoyu private yapma
