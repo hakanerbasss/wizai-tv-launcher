@@ -55,6 +55,8 @@ fun AppearanceScreen(state: AppState) {
             Text("Görünüm ve ayarlar", color = TextMain, fontSize = 30.sp, fontWeight = FontWeight.SemiBold)
             Text("Yukarı/aşağı ile gez, OK ile değiştir. Geri tuşu ana ekrana döner.", color = TextMuted, fontSize = 14.sp)
         }
+        item { SectionLabel("Tema") }
+        item { OptionRow("Ana ekran teması", ThemeNames[state.theme.coerceIn(0, 2)]) { state.setTheme((state.theme + 1) % ThemeNames.size) } }
         item { SectionLabel("Arka plan") }
         item {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 6.dp)) {

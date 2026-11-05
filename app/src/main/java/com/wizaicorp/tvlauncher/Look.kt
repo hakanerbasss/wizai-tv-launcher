@@ -32,6 +32,7 @@ val AccentPresets: List<Color> = listOf(
     Color(0xFF60A5FA)
 )
 
+val ThemeNames: List<String> = listOf("A · Koyu Bento", "B · Neon Oyun", "C · Hava Merkezli")
 val CornerNames: List<String> = listOf("Keskin", "Orta", "Yuvarlak")
 val CornerSizes: List<Dp> = listOf(12.dp, 24.dp, 36.dp)
 val FocusFxNames: List<String> = listOf("Çerçeve", "Büyüme", "Çerçeve + büyüme", "Parlama")

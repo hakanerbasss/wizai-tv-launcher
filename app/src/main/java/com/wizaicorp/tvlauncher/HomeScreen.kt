@@ -122,6 +122,16 @@ fun HomeScreen() {
     }
 }
 
+/** Ana ekrandaki tıklama olayları. Üç tema da aynı olayları kullanır. */
+private class HomeActions(
+    val slotClick: (Int) -> Unit,
+    val slotLong: (Int) -> Unit,
+    val onWeather: () -> Unit,
+    val onAppearance: () -> Unit,
+    val openApp: (String) -> Unit,
+    val appMenu: (String) -> Unit
+)
+
 @Composable
 private fun HomeContent(
     context: Context,
@@ -133,7 +143,7 @@ private fun HomeContent(
     onWeather: () -> Unit
 ) {
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(state.theme) {
         delay(400)
         try {
             firstFocus.requestFocus()
@@ -142,22 +152,25 @@ private fun HomeContent(
         }
     }
 
-    // Üst kutuya OK: boşsa seçtir, ayara göre direkt aç ya da kart göster
-    fun slotClick(i: Int) {
-        val pkg = state.slots[i]
-        val installed = apps.any { it.packageName == pkg }
-        when {
-            pkg.isEmpty() || (apps.isNotEmpty() && !installed) -> onEditSlot(i)
-            state.okOpens -> state.open(context, pkg)
-            else -> onCard(pkg, i)
-        }
-    }
-
-    fun slotLong(i: Int) {
-        val pkg = state.slots[i]
-        if (pkg.isEmpty()) onEditSlot(i) else onCard(pkg, i)
-    }
-
+    val actions = HomeActions(
+        slotClick = { i ->
+            val pkg = state.slots[i]
+            val installed = apps.any { it.packageName == pkg }
+            when {
+                pkg.isEmpty() || (apps.isNotEmpty() && !installed) -> onEditSlot(i)
+                state.okOpens -> state.open(context, pkg)
+                else -> onCard(pkg, i)
+            }
+        },
+        slotLong = { i ->
+            val pkg = state.slots[i]
+            if (pkg.isEmpty()) onEditSlot(i) else onCard(pkg, i)
+        },
+        onWeather = onWeather,
+        onAppearance = onAppearance,
+        openApp = { state.open(context, it) },
+        appMenu = { onCard(it, -1) }
+    )
     val list = state.orderedApps(apps)
 
     Column(
@@ -166,58 +179,19 @@ private fun HomeContent(
             .padding(horizontal = 36.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        TopBar(context = context, state = state, onAppearance = onAppearance)
-
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            AppSlotTile(
-                modifier = Modifier
-                    .weight(2f)
-                    .fillMaxHeight(),
-                pkg = state.slots[0],
-                apps = apps,
-                focusRequester = firstFocus,
-                onClick = { slotClick(0) },
-                onLong = { slotLong(0) }
-            )
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                AppSlotTile(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    pkg = state.slots[1],
-                    apps = apps,
-                    onClick = { slotClick(1) },
-                    onLong = { slotLong(1) }
-                )
-                AppSlotTile(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    pkg = state.slots[2],
-                    apps = apps,
-                    onClick = { slotClick(2) },
-                    onLong = { slotLong(2) }
-                )
-            }
-            WeatherTile(
-                modifier = Modifier
-                    .weight(1.3f)
-                    .fillMaxHeight(),
-                state = state,
-                onClick = onWeather
-            )
+        when (state.theme) {
+            1 -> ThemeNeon(context, state, apps, actions, firstFocus, Modifier.weight(1f))
+            2 -> ThemeWeather(context, state, apps, actions, firstFocus, Modifier.weight(1f))
+            else -> ThemeBento(context, state, apps, actions, firstFocus, Modifier.weight(1f))
         }
+        AppsRow(state, list, actions)
+    }
+}
 
+/** Tüm temalarda ortak: alttaki uygulama satırı. */
+@Composable
+private fun AppsRow(state: AppState, list: List<AppEntry>, actions: HomeActions) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -243,8 +217,285 @@ private fun HomeContent(
                     app = app,
                     favorite = app.packageName in state.favorites,
                     banner = state.tileBanner,
-                    onClick = { state.open(context, app.packageName) },
-                    onLongClick = { onCard(app.packageName, -1) }
+                    onClick = { actions.openApp(app.packageName) },
+                    onLongClick = { actions.appMenu(app.packageName) }
+                )
+            }
+        }
+    }
+}
+
+/** Tema A: Koyu Bento. Büyük kutu + iki küçük kutu + hava. */
+@Composable
+private fun ThemeBento(
+    context: Context,
+    state: AppState,
+    apps: List<AppEntry>,
+    actions: HomeActions,
+    firstFocus: FocusRequester,
+    modifier: Modifier
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        TopBar(context = context, state = state, onAppearance = actions.onAppearance)
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            AppSlotTile(
+                modifier = Modifier
+                    .weight(2f)
+                    .fillMaxHeight(),
+                pkg = state.slots[0],
+                apps = apps,
+                focusRequester = firstFocus,
+                onClick = { actions.slotClick(0) },
+                onLong = { actions.slotLong(0) }
+            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                for (i in 1..2) {
+                    AppSlotTile(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        pkg = state.slots[i],
+                        apps = apps,
+                        onClick = { actions.slotClick(i) },
+                        onLong = { actions.slotLong(i) }
+                    )
+                }
+            }
+            WeatherTile(
+                modifier = Modifier
+                    .weight(1.3f)
+                    .fillMaxHeight(),
+                state = state,
+                onClick = actions.onWeather
+            )
+        }
+    }
+}
+
+private fun greeting(hour: Int): String = when {
+    hour < 5 -> "İYİ GECELER"
+    hour < 12 -> "GÜNAYDIN"
+    hour < 17 -> "İYİ ÖĞLEDENLER"
+    hour < 22 -> "İYİ AKŞAMLAR"
+    else -> "İYİ GECELER"
+}
+
+/** Tema B: Neon Oyun. Selamlama + saat, yatay hava şeridi, parlayan kenarlıklı kutular. */
+@Composable
+private fun ThemeNeon(
+    context: Context,
+    state: AppState,
+    apps: List<AppEntry>,
+    actions: HomeActions,
+    firstFocus: FocusRequester,
+    modifier: Modifier
+) {
+    val look = LocalLook.current
+    val (rot, phase) = rememberWeatherAnim(look.anim)
+    val timeFormat = remember(state.clock24) {
+        SimpleDateFormat(if (state.clock24) "HH:mm" else "h:mm a", Locale("tr", "TR"))
+    }
+    val dateFormat = remember { SimpleDateFormat("EEEE, d MMMM", Locale("tr", "TR")) }
+    val now by produceState(initialValue = System.currentTimeMillis()) {
+        while (true) {
+            value = System.currentTimeMillis()
+            delay(10_000)
+        }
+    }
+    val cal = remember(now) { java.util.Calendar.getInstance().also { it.timeInMillis = now } }
+    val glow = look.accent.copy(alpha = 0.55f)
+
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    text = greeting(cal.get(java.util.Calendar.HOUR_OF_DAY)),
+                    color = look.accent,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        text = timeFormat.format(Date(now)),
+                        color = TextMain,
+                        fontSize = 56.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = dateFormat.format(Date(now)),
+                        color = TextMuted,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(start = 14.dp, bottom = 10.dp)
+                    )
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                FocusTile(
+                    onClick = actions.onWeather,
+                    padding = 8,
+                    idleBorder = glow
+                ) {
+                    val w = state.weather
+                    if (w == null) {
+                        Text(
+                            text = if (state.weatherFailed) "Hava alınamadı" else "Hava yükleniyor…",
+                            color = TextMuted,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    } else {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(Cities[state.cityIndex.coerceIn(0, Cities.lastIndex)].name.uppercase(), color = TextMuted, fontSize = 11.sp)
+                                Text("${w.temp}°", color = TextMain, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                            }
+                            for (d in w.days) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(d.label, color = TextMuted, fontSize = 12.sp)
+                                    WeatherIcon(kindOf(d.code), 28.dp, rot, phase)
+                                    Text("${d.max}°", color = TextMain, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                        }
+                    }
+                }
+                BarButton("Görünüm", actions.onAppearance)
+                BarButton("Ayarlar") { safeStart(context, Intent(Settings.ACTION_SETTINGS)) }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            AppSlotTile(
+                modifier = Modifier
+                    .weight(2f)
+                    .fillMaxHeight(),
+                pkg = state.slots[0],
+                apps = apps,
+                focusRequester = firstFocus,
+                idleBorder = glow,
+                onClick = { actions.slotClick(0) },
+                onLong = { actions.slotLong(0) }
+            )
+            for (i in 1..2) {
+                AppSlotTile(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    pkg = state.slots[i],
+                    apps = apps,
+                    idleBorder = glow,
+                    onClick = { actions.slotClick(i) },
+                    onLong = { actions.slotLong(i) }
+                )
+            }
+        }
+    }
+}
+
+/** Tema C: Hava Merkezli. Dev hava durumu üstte, üç uygulama kutusu şerit halinde altta. */
+@Composable
+private fun ThemeWeather(
+    context: Context,
+    state: AppState,
+    apps: List<AppEntry>,
+    actions: HomeActions,
+    firstFocus: FocusRequester,
+    modifier: Modifier
+) {
+    val look = LocalLook.current
+    val (rot, phase) = rememberWeatherAnim(look.anim)
+    val city = Cities[state.cityIndex.coerceIn(0, Cities.lastIndex)]
+
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        TopBar(context = context, state = state, onAppearance = actions.onAppearance)
+        FocusTile(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            onClick = actions.onWeather,
+            focusRequester = firstFocus,
+            padding = 16
+        ) {
+            val w = state.weather
+            if (w == null) {
+                Text(city.name, color = TextMuted, fontSize = 18.sp)
+                Text(
+                    text = if (state.weatherFailed) "Hava durumu alınamadı" else "Hava durumu yükleniyor…",
+                    color = TextMain,
+                    fontSize = 22.sp
+                )
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        WeatherIcon(kindOf(w.code), 104.dp, rot, phase)
+                        Column(modifier = Modifier.padding(start = 16.dp)) {
+                            Text("${w.temp}°", color = TextMain, fontSize = 72.sp, fontWeight = FontWeight.Bold)
+                            Text("${labelOf(w.code)} · ${city.name}", color = TextMuted, fontSize = 16.sp)
+                            Text(
+                                "Hissedilen ${w.feels}°  ·  Rüzgar ${w.wind} km/sa  ·  Nem %${w.humidity}",
+                                color = TextMuted,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        for (d in w.days) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(d.label, color = TextMuted, fontSize = 15.sp)
+                                WeatherIcon(kindOf(d.code), 40.dp, rot, phase)
+                                Text("${d.max}°", color = TextMain, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                                Text("${d.min}°", color = TextMuted, fontSize = 14.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(84.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            for (i in 0..2) {
+                AppSlotTile(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    pkg = state.slots[i],
+                    apps = apps,
+                    onClick = { actions.slotClick(i) },
+                    onLong = { actions.slotLong(i) }
                 )
             }
         }
@@ -335,6 +586,7 @@ private fun AppSlotTile(
     pkg: String,
     apps: List<AppEntry>,
     focusRequester: FocusRequester? = null,
+    idleBorder: Color? = null,
     onClick: () -> Unit,
     onLong: () -> Unit
 ) {
@@ -349,6 +601,7 @@ private fun AppSlotTile(
         onClick = onClick,
         onLongClick = onLong,
         focusRequester = focusRequester,
+        idleBorder = idleBorder,
         padding = if (showBanner) 0 else 16
     ) {
         if (showBanner && bannerImage != null) {
@@ -591,6 +844,7 @@ internal fun FocusTile(
     focusRequester: FocusRequester? = null,
     padding: Int = 20,
     fill: Color? = null,
+    idleBorder: Color? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val look = LocalLook.current
@@ -618,7 +872,13 @@ internal fun FocusTile(
             }
             .clip(shape)
             .background(fill ?: look.tile)
-            .then(if (showBorder) Modifier.border(3.dp, borderColor, shape) else Modifier)
+            .then(
+                when {
+                    showBorder -> Modifier.border(3.dp, borderColor, shape)
+                    idleBorder != null -> Modifier.border(2.dp, idleBorder, shape)
+                    else -> Modifier
+                }
+            )
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .padding(padding.dp),
         content = content

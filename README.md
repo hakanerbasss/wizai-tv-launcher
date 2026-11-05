@@ -34,7 +34,7 @@ Paket adı: `com.wizaicorp.tvlauncher`
 15. Uygulama bilgisi / kaldır ✅
 16. "İzlemeye devam et" (Watch Next) satırı — TV'de erişim denenecek, çalışırsa kartlara (YouTube son izlenenler) eklenecek
 17. Netflix "yeni çıkanlar" kartı (TMDB; ticari lisans şartı kontrol edilecek)
-18. Tema B (Neon Oyun) ve C (Hava Merkezli) — tasarımlar `docs/tasarim/` içinde, ayrıntı aşağıda "Temalar"
+18. Tema B (Neon Oyun) ve C (Hava Merkezli) ✅ (ilk sürüm) — tasarımlar `docs/tasarim/` içinde, ayrıntı aşağıda "Temalar"
 19. Duvar kağıdı resmi + ekran koruyucu
 20. TİS takvim kutusu (ayrı TV'ye özel TİS uygulaması hazır olunca; paket `com.wizaicorp.tisasistani`)
 
@@ -53,7 +53,10 @@ YouTube Music "Hızlı çal" (Favorilerim, Çalıyor), parlayan odak çerçevesi
 **C — Hava Merkezli** (`Hava.dc.html`): lacivert gökyüzü (#0B1B36 → #2C5F9E), ortada dev hava durumu
 (18°, Hissedilen / Rüzgar / Nem), 5 günlük tahmin, altta küçük TİS, Netflix ve diğer kutular.
 
-### Tema yapılacaklar (kod)
+### Tema durumu
+A, B ve C kodlandı (Görünüm → "Ana ekran teması", OK ile değişir; tema değişince arka plan/vurgu rengi temaya göre ayarlanır). Kutu içerikleri (Netflix yeni çıkanlar, YouTube Music, TİS takvimi) veri kaynağı gelince eklenecek.
+
+### Tema notları (tasarım ilkeleri)
 - `AppState`'e `theme` (0=A, 1=B, 2=C) ekle, `AppearanceScreen`'de "Tema" satırı (OK ile değişir).
 - `HomeContent` içinde temaya göre ayrı layout composable'ları: `ThemeABento`, `ThemeBNeon`, `ThemeCWeather`.
   Ortak parçalar (FocusTile, AppIcon, AppCard, WeatherTile, Picker) paylaşılsın, tekrar yazılmasın.
