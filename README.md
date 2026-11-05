@@ -54,15 +54,22 @@ YouTube Music "Hızlı çal" (Favorilerim, Çalıyor), parlayan odak çerçevesi
 (18°, Hissedilen / Rüzgar / Nem), 5 günlük tahmin, altta küçük TİS, Netflix ve diğer kutular.
 
 ### Tema durumu
-A, B ve C kodlandı (Görünüm → "Ana ekran teması", OK ile değişir; tema değişince arka plan/vurgu rengi temaya göre ayarlanır). Kutu içerikleri (Netflix yeni çıkanlar, YouTube Music, TİS takvimi) veri kaynağı gelince eklenecek.
+Şu an kodda **tek düzen** var; "Tema" satırı (Görünüm ekranı) bu düzenin arka plan/vurgu rengi/köşe/odak
+efektini 3 hazır pakete göre değiştiriyor (A varsayılan, B neon, C hava merkezli — bkz. `Look.kt` `ThemePresets`).
+Yukarıdaki A/B/C **düzen** (layout) tasarımı henüz kodlanmadı — bu, ayrı bir büyütme olarak yapılacak:
+bir deneme bunu kodladı ama eski bir noktadan dallanıp derleme hatası içeriyordu ve geri alındı
+(bkz. git geçmişi, `main` branch'inin 05.11.2026 tarihli "Tema B/C" commit'leri). Tasarım dosyaları
+(`docs/tasarim/*.html`) ve yukarıdaki açıklamalar ileride bu düzeni kodlarken referans olarak duruyor.
 
-### Tema notları (tasarım ilkeleri)
-- `AppState`'e `theme` (0=A, 1=B, 2=C) ekle, `AppearanceScreen`'de "Tema" satırı (OK ile değişir).
+### Tema notları (düzen tasarımı yapılırken, ileride)
+- `AppState`'e `theme` (0=A, 1=B, 2=C) eklenecek, `AppearanceScreen`'de ayrı bir "Ana ekran düzeni" satırı.
 - `HomeContent` içinde temaya göre ayrı layout composable'ları: `ThemeABento`, `ThemeBNeon`, `ThemeCWeather`.
   Ortak parçalar (FocusTile, AppIcon, AppCard, WeatherTile, Picker) paylaşılsın, tekrar yazılmasın.
 - Kutu içerikleri placeholder'dır ([Film adı] gibi). Gerçek veri gelene kadar boş kart yerine
   "yakında" göstermeyin; veri yoksa o kutu sadece uygulama logosu olsun (Netflix: TMDB, YouTube: Watch Next, TİS: ayrı TV uygulaması).
 - Her temada tüm kutular kullanıcı tarafından değiştirilebilir kalsın (hardcode yok).
+- Bu kez önce `main` değil, bu projenin geliştirme branch'i üzerinde yapılıp derleme yeşil olduktan
+  sonra birleştirilmeli (bkz. "Derleme" bölümü).
 
 ## Diğer yapılacaklar
 - Chrome / tarayıcı kısayolu (TV Bro vb.)

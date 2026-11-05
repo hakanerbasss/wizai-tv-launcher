@@ -41,8 +41,6 @@ class AppState(context: Context) {
         private set
     var okOpens by mutableStateOf(prefs.getBool("ok_opens", false))
         private set
-    var theme by mutableIntStateOf(prefs.getInt("theme", 0))
-        private set
     var cityIndex by mutableIntStateOf(prefs.getInt("city", 0))
         private set
 
@@ -145,17 +143,6 @@ class AppState(context: Context) {
     fun updateOkOpens(value: Boolean) {
         okOpens = value
         prefs.putBool("ok_opens", value)
-    }
-
-    /** Tema değişince o temaya uygun arka plan ve vurgu rengi de seçilir (sonra yine elle değiştirilebilir). */
-    fun setTheme(value: Int) {
-        theme = value
-        prefs.putInt("theme", value)
-        when (value) {
-            0 -> { setBg(0); setAccent(0) }
-            1 -> { setBg(9); setAccent(2) }
-            else -> { setBg(6); setAccent(4) }
-        }
     }
 
     fun setCity(value: Int) {
